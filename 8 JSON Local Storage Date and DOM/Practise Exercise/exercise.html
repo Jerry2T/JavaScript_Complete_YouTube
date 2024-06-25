@@ -22,16 +22,13 @@
   <h3 id="greeting"></h3>
 
   <button id="my-button" onclick="buttonPressed();"></button>
-
   <script>
     let noOfTimesClicked = localStorage.getItem('noOfTimesClicked') || 0;
-
     function buttonPressed() {
       noOfTimesClicked++;
       localStorage.setItem('noOfTimesClicked', noOfTimesClicked);
       updateButton();
     }
-
     function updateButton() {
       let button = document.querySelector('#my-button');
       if (noOfTimesClicked % 2 === 0) {

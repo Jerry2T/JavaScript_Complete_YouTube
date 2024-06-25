@@ -15,19 +15,16 @@
   let resultMsg = getResult('Bat', computerChoice);
   showResult('Bat', computerChoice, resultMsg);
   ">Bat</button>
-
   <button onclick="
     computerChoice = generateComputerChoice();
     resultMsg = getResult('Ball', computerChoice);
     showResult('Ball', computerChoice, resultMsg);
   ">Ball</button>
-
   <button onclick="
     computerChoice = generateComputerChoice();
     resultMsg = getResult('Stump', computerChoice);
     showResult('Stump', computerChoice, resultMsg);
   ">Stump</button>
-
   <script>
     let score = {
       win: 0,
@@ -37,7 +34,6 @@
         return `No of matches Won:${score.win}, Lost:${score.lost}, Tie: ${score.tie}`;
       }
     };
-
     function generateComputerChoice() {
       //This will generate random number between 0 and 3
       let randomNumber = Math.random() * 3;
@@ -49,7 +45,6 @@
         return 'Stump'
       }
     }
-
     function getResult(userMove, computerMove) {
       if (userMove === 'Bat') {
         if (computerMove === 'Ball') {
@@ -86,12 +81,9 @@
         }
       }
     }
-
     function showResult(userMove, computerMove, result) {
-      alert(`You have chosen ${userMove}. Computer choice is ${computerMove}
-      
-      ${result}
-      
+      alert(`You have chosen ${userMove}. Computer choice is ${computerMove}      
+      ${result}      
       ${score.displayScore()}`);
     }
   </script>
