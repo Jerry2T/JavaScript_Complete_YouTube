@@ -7,6 +7,7 @@ import warnings
 from transformers import pipeline
 from langdetect import detect
 from googletrans import Translator
+import fitz  # PyMuPDF
 warnings.simplefilter('ignore')
 
 # Load emoji sentiment data
@@ -101,9 +102,20 @@ def get_text_emoji_sentiment(input_text):
         emtext = analyze_emotion(ext_text)
         return senti_truth, emtext, ext_text, {}
 
+# Function to extract text from PDF
+def extract_text_from_pdf(pdf_file):
+    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
+    text = ""
+    for page in doc:
+        text += page.get_text()
+    return text
+
 # Streamlit frontend
 st.title('Text and Emoji Sentiment Analysis')
 user_input = st.text_input("Enter tweet with emojis in your language:")
+
+uploaded_pdf = st.file_uploader("Or upload a PDF file containing tweets:", type="pdf")
+uploaded_csv = st.file_uploader("Or upload a CSV file containing tweets:", type="csv")
 
 if user_input:
     sentiment, emotion, tran, emoji_sentiments = get_text_emoji_sentiment(user_input)
@@ -119,3 +131,48 @@ if user_input:
         st.write(f"Translated tweet: {tran}")
         st.write(f"Overall Sentiment: {sentiment}")
         st.write(f"Text Emotion: {emotion}")
+
+elif uploaded_pdf:
+    pdf_text = extract_text_from_pdf(uploaded_pdf)
+    tweets = pdf_text.split('\n')
+    
+    for tweet in tweets:
+        if tweet.strip():
+            sentiment, emotion, tran, emoji_sentiments = get_text_emoji_sentiment(tweet)
+            st.write(f"Tweet: {tweet}")
+            
+            if tran == "N/A":
+                st.write(f"Only emojis detected")
+                st.write(f"Emoji Sentiment: {sentiment}")
+                st.write("Detailed Emoji Sentiments:")
+                for emoji_char, senti_val in emoji_sentiments.items():
+                    senti_text = "Positive" if senti_val == 1 else "Negative"
+                    st.write(f"{emoji_char}: {senti_text}")
+            else:
+                st.write(f"Translated tweet: {tran}")
+                st.write(f"Overall Sentiment: {sentiment}")
+                st.write(f"Text Emotion: {emotion}")
+            st.write("\n")
+
+elif uploaded_csv:
+    df = pd.read_csv(uploaded_csv)
+    if 'tweet' in df.columns:
+        for tweet in df['tweet']:
+            if tweet.strip():
+                sentiment, emotion, tran, emoji_sentiments = get_text_emoji_sentiment(tweet)
+                st.write(f"Tweet: {tweet}")
+                
+                if tran == "N/A":
+                    st.write(f"Only emojis detected")
+                    st.write(f"Emoji Sentiment: {sentiment}")
+                    st.write("Detailed Emoji Sentiments:")
+                    for emoji_char, senti_val in emoji_sentiments.items():
+                        senti_text = "Positive" if senti_val == 1 else "Negative"
+                        st.write(f"{emoji_char}: {senti_text}")
+                else:
+                    st.write(f"Translated tweet: {tran}")
+                    st.write(f"Overall Sentiment: {sentiment}")
+                    st.write(f"Text Emotion: {emotion}")
+                st.write("\n")
+    else:
+        st.write("CSV file does not contain 'tweet' column.")
